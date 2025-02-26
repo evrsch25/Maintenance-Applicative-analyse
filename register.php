@@ -11,11 +11,12 @@ function inscription(string $pass, string $usr): bool{
     global $err;
 
     $db = require 'bdd.php';
-    $sql = "SELECT * FROM utilisateur WHERE identifiant='$usr'";
+    $sql = "SELECT * FROM utilisateur WHERE identifiant=:usr";
 
-    // Exécute la requête SQL
-    $result = $db->query($sql);
-    $data = $result->fetch();
+    // Prépare et exécute la requête SQL
+    $stmt = $db->prepare($sql);
+    $stmt->execute(['usr' => $usr]);
+    $data = $stmt->fetch();
 
     // Vérifie si l'identifiant existe déjà
     if($data){
@@ -24,8 +25,10 @@ function inscription(string $pass, string $usr): bool{
         return false;
     } else{
         // Si l'identifiant n'existe pas, insère le nouvel utilisateur dans la base de données
-        $sql = "INSERT INTO utilisateur (identifiant, mot_de_passe) VALUES ('$usr', '$pass')";
-        $db->query($sql);
+        $sql = "INSERT INTO utilisateur (identifiant, mot_de_passe) VALUES (:usr, :pass)";
+        $stmt = $db->prepare($sql);
+        $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
+        $stmt->execute(['usr' => $usr, 'pass' => $hashedPass]);
 
         // Initialise la session utilisateur
         $_SESSION['utilisateur'] = $usr;
