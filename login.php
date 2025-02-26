@@ -43,7 +43,7 @@ if(isset($_POST['connexion'])){
 
     // Si les informations sont correctes, redirige vers la page d'accueil
     if($acces){
-        header('Location: accueil.php');
+        header('Location: index.php');
         exit();
     }
 }
